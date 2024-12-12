@@ -9,26 +9,69 @@ import ResultModal from '../components/ResultModal';
 import { useAuth } from '../contexts/AuthContext';
 
 interface SelectedImages {
+  image1: File | null;
+  image2: File | null;
+}
+
+interface ImagePreviews {
   image1: string;
   image2: string;
 }
 
 const Detection: React.FC = () => {
   const { user } = useAuth();
-  const [selectedImages, setSelectedImages] = useState<SelectedImages | null>(null);
+  const [selectedImages, setSelectedImages] = useState<SelectedImages>({ image1: null, image2: null });
+  const [imagePreviews, setImagePreviews] = useState<ImagePreviews>({ image1: '', image2: '' });
+  const [imageFiles, setImageFiles] = useState<SelectedImages>({ image1: null, image2: null });
   const [selectedModels, setSelectedModels] = useState({
-    detectionModel: '',
-    segmentationModel: ''
+    detectionModel: 'model1',
+    segmentationModel: 'seg1'
   });
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [showResult, setShowResult] = useState(false);
 
+  const handleImageUpload = (type: 'image1' | 'image2', file: File | null) => {
+    if (!file) return;
+
+    const imageUrl = URL.createObjectURL(file);
+    
+    setImagePreviews(prev => ({
+      ...prev,
+      [type]: imageUrl
+    }));
+
+    setSelectedImages(prev => ({
+      ...prev,
+      [type]: file
+    }));
+
+    setImageFiles(prev => ({
+      ...prev,
+      [type]: file
+    }));
+  };
+
   const handleDetectionStart = async () => {
-    if (!selectedImages || !user) return;
+    if (!selectedImages?.image1 || !selectedImages?.image2 || !user) return;
     
     setIsProcessing(true);
     try {
+      const formData = new FormData();
+      formData.append('image1', selectedImages.image1);
+      formData.append('image2', selectedImages.image2);
+      
+      const uploadResponse = await fetch('http://10.16.39.70:8080/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!uploadResponse.ok) {
+        throw new Error('图片上传失败');
+      }
+
+      const uploadResult = await uploadResponse.json();
+      
       // 模拟检测过程
       await new Promise(resolve => setTimeout(resolve, 2000));
       
@@ -54,7 +97,7 @@ const Detection: React.FC = () => {
         id: Math.random().toString(),
         userId: user.id,
         timestamp: new Date().toISOString(),
-        inputImages: selectedImages,
+        inputImages: imagePreviews,
         models: selectedModels,
         results: {
           changeDetectionImage: mockResult.changeDetectionImage,
@@ -70,16 +113,6 @@ const Detection: React.FC = () => {
     } finally {
       setIsProcessing(false);
     }
-  };
-
-  const handleImageUpload = (type: 'image1' | 'image2', file: File | null) => {
-    if (!file) return;
-
-    const imageUrl = URL.createObjectURL(file);
-    setSelectedImages(prev => ({
-      ...prev || { image1: '', image2: '' },
-      [type]: imageUrl
-    }));
   };
 
   return (
@@ -138,7 +171,13 @@ const Detection: React.FC = () => {
           <button
             className="relative flex items-center px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
             onClick={handleDetectionStart}
-            disabled={!selectedModels.detectionModel || !selectedModels.segmentationModel || !selectedImages || isProcessing}
+            disabled={
+              !selectedModels.detectionModel || 
+              !selectedModels.segmentationModel || 
+              !selectedImages?.image1 || 
+              !selectedImages?.image2 || 
+              isProcessing
+            }
           >
             {isProcessing ? (
               <>
@@ -166,7 +205,7 @@ const Detection: React.FC = () => {
           isOpen={showResult}
           onClose={() => setShowResult(false)}
           result={result}
-          selectedImages={selectedImages}
+          selectedImages={imagePreviews}
           selectedModels={selectedModels}
         />
       )}

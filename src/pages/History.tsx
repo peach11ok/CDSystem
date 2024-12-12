@@ -8,6 +8,15 @@ interface DetailModalProps {
   record: DetectionRecord;
   onClose: () => void;
 }
+const MODEL_NAMES = {
+  detection: {
+    'model1': 'TFIFNet',
+    'model2': 'TFIFNetPro'
+  },
+  segmentation: {
+    'seg1': 'DeepLabV3'
+  }
+};
 
 const DetailModal: React.FC<DetailModalProps> = ({ record }) => {
   return (
@@ -26,7 +35,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ record }) => {
         <div className="border-b pb-4">
           <label className="text-sm font-medium text-gray-500">变化检测模型</label>
           <p className="mt-1 text-lg font-medium text-gray-900">
-            {record.models.detectionModel}
+            {MODEL_NAMES.detection[record.models.detectionModel as keyof typeof MODEL_NAMES.detection] || record.models.detectionModel}
           </p>
         </div>
 
@@ -34,7 +43,7 @@ const DetailModal: React.FC<DetailModalProps> = ({ record }) => {
         <div className="border-b pb-4">
           <label className="text-sm font-medium text-gray-500">语义分割模型</label>
           <p className="mt-1 text-lg font-medium text-gray-900">
-            {record.models.segmentationModel}
+            {MODEL_NAMES.segmentation[record.models.segmentationModel as keyof typeof MODEL_NAMES.segmentation] || record.models.segmentationModel}
           </p>
         </div>
       </div>
@@ -87,8 +96,8 @@ const History: React.FC = () => {
             </div>
             <div class="section">
               <h2>使用模型</h2>
-              <p>变化检测模型：${record.models.detectionModel}</p>
-              <p>语义分割模型：${record.models.segmentationModel}</p>
+              <p>变化检测模型：${MODEL_NAMES.detection[record.models.detectionModel as keyof typeof MODEL_NAMES.detection] || record.models.detectionModel}</p>
+              <p>语义分割模型：${MODEL_NAMES.segmentation[record.models.segmentationModel as keyof typeof MODEL_NAMES.segmentation] || record.models.segmentationModel}</p>
             </div>
             <div class="section">
               <h2>检测结果</h2>
