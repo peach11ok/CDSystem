@@ -10,6 +10,7 @@ interface Props {
   selectedModels?: { detectionModel: string; segmentationModel: string; };
 }
 
+
 const ResultModal: React.FC<Props> = ({ isOpen, onClose, result, selectedImages, selectedModels }) => {
   const { user } = useAuth();
   const [isGeneratingReport, setIsGeneratingReport] = useState(false);

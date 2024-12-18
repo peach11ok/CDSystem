@@ -41,6 +41,19 @@ const ResultDisplay: React.FC<Props> = ({ result }) => {
           </div>
         </div>
       </div>
+      <div>
+        <h3 className="font-medium text-gray-900">检测结果：</h3>
+        <div className="mt-2 flex justify-center">
+          {result.changeDetectionImage && (
+            <img 
+              src={result.changeDetectionImage}
+              alt="变化检测结果"
+              className="max-w-full h-auto rounded-lg shadow-md"
+            />
+          )}
+        </div>
+      </div>
+      
     </div>
   );
 };

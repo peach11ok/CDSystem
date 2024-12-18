@@ -24,7 +24,7 @@ const Detection: React.FC = () => {
   const [imagePreviews, setImagePreviews] = useState<ImagePreviews>({ image1: '', image2: '' });
   const [imageFiles, setImageFiles] = useState<SelectedImages>({ image1: null, image2: null });
   const [selectedModels, setSelectedModels] = useState({
-    detectionModel: 'model1',
+    detectionModel: 'TFIFNet',
     segmentationModel: 'seg1'
   });
   const [result, setResult] = useState<DetectionResult | null>(null);
@@ -60,6 +60,13 @@ const Detection: React.FC = () => {
       const formData = new FormData();
       formData.append('image1', selectedImages.image1);
       formData.append('image2', selectedImages.image2);
+      formData.append('model', selectedModels.detectionModel);
+      
+      console.log('开始上传图片:', {
+        image1: selectedImages.image1.name,
+        image2: selectedImages.image2.name,
+        model: selectedModels.detectionModel
+      });
       
       const uploadResponse = await fetch('http://10.16.39.70:8080/upload', {
         method: 'POST',
@@ -67,29 +74,30 @@ const Detection: React.FC = () => {
       });
 
       if (!uploadResponse.ok) {
-        throw new Error('图片上传失败');
+        const errorData = await uploadResponse.json();
+        throw new Error(errorData.error || '图片上传失败');
       }
 
       const uploadResult = await uploadResponse.json();
-      
-      // 模拟检测过程
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      const mockResult: DetectionResult = {
-        changedAreas: ['区域1', '区域2'],
+      console.log('服务器返回结果:', uploadResult);
+
+      // 构建检测结果，使用服务器返回的图片路径
+      const detectionResult: DetectionResult = {
+        changedAreas: ['检测到的变化区域'],
         confidence: 0.95,
         segmentationData: {
           image1: ['建筑', '道路'],
           image2: ['建筑', '绿地']
         },
-        changeDetectionImage: '/path/to/change/detection/result.jpg',
+        // 使用完整的服务器URL
+        changeDetectionImage: `http://10.16.39.70:8080${uploadResult.detection_result}`,
         segmentationImages: {
-          image1: '/path/to/segmentation/result1.jpg',
-          image2: '/path/to/segmentation/result2.jpg'
+          image1: uploadResult.image1 ? `http://10.16.39.70:8080${uploadResult.image1}` : '',
+          image2: uploadResult.image2 ? `http://10.16.39.70:8080${uploadResult.image2}` : ''
         }
       };
 
-      setResult(mockResult);
+      setResult(detectionResult);
       setShowResult(true);
 
       // 保存检测记录
@@ -97,17 +105,25 @@ const Detection: React.FC = () => {
         id: Math.random().toString(),
         userId: user.id,
         timestamp: new Date().toISOString(),
-        inputImages: imagePreviews,
+        inputImages: {
+          image1: `http://10.16.39.70:8080${uploadResult.image1}`,
+          image2: `http://10.16.39.70:8080${uploadResult.image2}`
+        },
         models: selectedModels,
         results: {
-          changeDetectionImage: mockResult.changeDetectionImage,
-          segmentationImages: mockResult.segmentationImages,
-          changedAreas: mockResult.changedAreas,
-          changeTypes: mockResult.segmentationData.image2.filter(
-            (type, index) => type !== mockResult.segmentationData.image1[index]
-          )
+          changeDetectionImage: `http://10.16.39.70:8080${uploadResult.detection_result}`,
+          segmentationImages: {
+            image1: uploadResult.image1 ? `http://10.16.39.70:8080${uploadResult.image1}` : '',
+            image2: uploadResult.image2 ? `http://10.16.39.70:8080${uploadResult.image2}` : ''
+          },
+          changedAreas: ['检测到的变化区域'],
+          changeTypes: ['变化类型']
         }
       };
+
+      // 这里可以添加保存记录到数据库的逻辑
+      console.log('检测记录已创建:', newRecord);
+
     } catch (error) {
       console.error('检测失败:', error);
     } finally {
@@ -143,6 +159,7 @@ const Detection: React.FC = () => {
                 type="segmentation"
                 value={selectedModels.segmentationModel}
                 onChange={(model) => setSelectedModels(prev => ({ ...prev, segmentationModel: model }))}
+                disabled={true}
               />
             </div>
           </div>

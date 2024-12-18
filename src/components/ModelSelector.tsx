@@ -4,13 +4,20 @@ interface Props {
   value: string;
   onChange: (value: string) => void;
   type: 'detection' | 'segmentation';
+  disabled?: boolean;
 }
 
-const ModelSelector: React.FC<Props> = ({ value, onChange, type }) => {
+const ModelSelector: React.FC<Props> = ({ 
+  value, 
+  onChange, 
+  type,
+  // 如果是分割模型，则默认禁用
+  disabled = type === 'segmentation'
+}) => {
   const models = type === 'detection' 
     ? [
-        { id: 'model1', name: 'TFIFNet' },
-        { id: 'model2', name: 'TFIFNetPro' },
+        { id: 'TFIFNet', name: 'TFIFNet' },
+        { id: 'TFIFNetPro', name: 'TFIFNetPro' },
       ]
     : [
         { id: 'seg1', name: 'DeepLabV3' },
@@ -21,11 +28,14 @@ const ModelSelector: React.FC<Props> = ({ value, onChange, type }) => {
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="w-40 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+        disabled={disabled}
+        className="w-40 p-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed"
       >
-        <option value="">
-          请选择{type === 'detection' ? '检测' : '分割'}模型
-        </option>
+        {!disabled && (
+          <option value="">
+            请选择{type === 'detection' ? '检测' : '分割'}模型
+          </option>
+        )}
         {models.map(model => (
           <option key={model.id} value={model.id}>
             {model.name}
