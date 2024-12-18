@@ -10,6 +10,10 @@ interface Props {
   selectedModels?: { detectionModel: string; segmentationModel: string; };
 }
 
+interface RecordProps {
+  record: DetectionRecord;
+}
+
 
 const ResultModal: React.FC<Props> = ({ isOpen, onClose, result, selectedImages, selectedModels }) => {
   const { user } = useAuth();
@@ -76,7 +80,7 @@ const ResultModal: React.FC<Props> = ({ isOpen, onClose, result, selectedImages,
       reportWindow.document.write(`
         <html>
           <head>
-            <title>检测报告</title>
+            <title>变化检测报告</title>
             <style>
               body { font-family: Arial, sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
               img { max-width: 100%; height: auto; margin: 10px 0; }
@@ -138,7 +142,6 @@ const ResultModal: React.FC<Props> = ({ isOpen, onClose, result, selectedImages,
                 <p>变化类型：${result.segmentationData.image2.filter(
                   (type, index) => type !== result.segmentationData.image1[index]
                 ).join('、')}</p>
-                <p>置信度：${(result.confidence * 100).toFixed(1)}%</p>
               </div>
             </div>
           </body>

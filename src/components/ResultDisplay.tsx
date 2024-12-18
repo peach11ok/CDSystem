@@ -1,8 +1,12 @@
 import React from 'react';
-import { DetectionResult } from '../types';
+import { DetectionRecord, DetectionResult } from '../types';
 
 interface Props {
   result: DetectionResult;
+}
+
+interface RecordProps {
+  record:DetectionRecord
 }
 
 const ResultDisplay: React.FC<Props> = ({ result }) => {
@@ -15,10 +19,6 @@ const ResultDisplay: React.FC<Props> = ({ result }) => {
             <li key={index}>{area}</li>
           ))}
         </ul>
-      </div>
-      <div>
-        <h3 className="font-medium text-gray-900">置信度：</h3>
-        <p className="mt-1 text-gray-600">{(result.confidence * 100).toFixed(2)}%</p>
       </div>
       <div>
         <h3 className="font-medium text-gray-900">语义分割结果：</h3>
@@ -53,7 +53,6 @@ const ResultDisplay: React.FC<Props> = ({ result }) => {
           )}
         </div>
       </div>
-      
     </div>
   );
 };

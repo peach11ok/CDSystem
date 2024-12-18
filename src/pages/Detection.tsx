@@ -25,7 +25,7 @@ const Detection: React.FC = () => {
   const [imageFiles, setImageFiles] = useState<SelectedImages>({ image1: null, image2: null });
   const [selectedModels, setSelectedModels] = useState({
     detectionModel: 'TFIFNet',
-    segmentationModel: 'seg1'
+    segmentationModel: 'DeepLabV3'
   });
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);

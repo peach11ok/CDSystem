@@ -77,7 +77,7 @@ const History: React.FC = () => {
       reportWindow.document.write(`
         <html>
           <head>
-            <title>检测报告</title>
+            <title>变化检测报告</title>
             <style>
               body { font-family: Arial, sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
               img { max-width: 100%; height: auto; margin: 10px 0; }
@@ -89,7 +89,7 @@ const History: React.FC = () => {
             </style>
           </head>
           <body>
-            <h1>检测报告</h1>
+            <h1>变化检测报告</h1>
             <div class="section">
               <h2>检测时间</h2>
               <p>${new Date(record.timestamp).toLocaleString('zh-CN')}</p>
@@ -98,6 +98,19 @@ const History: React.FC = () => {
               <h2>使用模型</h2>
               <p>变化检测模型：${MODEL_NAMES.detection[record.models.detectionModel as keyof typeof MODEL_NAMES.detection] || record.models.detectionModel}</p>
               <p>语义分割模型：${MODEL_NAMES.segmentation[record.models.segmentationModel as keyof typeof MODEL_NAMES.segmentation] || record.models.segmentationModel}</p>
+            </div>
+            <div class="section">
+              <h2>输入图片</h2>
+              <div class="grid">
+                <div class="image-container">
+                  <h3>图片1</h3>
+                  <img src="${record.inputImages.image1}" alt="输入图片1" />
+                </div>
+                <div class="image-container">
+                  <h3>图片2</h3>
+                  <img src="${record.inputImages.image2}" alt="输入图片2" />
+                </div>
+              </div>
             </div>
             <div class="section">
               <h2>检测结果</h2>

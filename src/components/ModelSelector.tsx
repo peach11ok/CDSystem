@@ -20,7 +20,7 @@ const ModelSelector: React.FC<Props> = ({
         { id: 'TFIFNetPro', name: 'TFIFNetPro' },
       ]
     : [
-        { id: 'seg1', name: 'DeepLabV3' },
+        { id: 'DeepLabV3', name: 'DeepLabV3' },
       ];
 
   return (
